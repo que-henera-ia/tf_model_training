@@ -2,7 +2,7 @@ import time
 import gc
 from tf_utils.manage_data import *
 from tf_utils.process_images import *
-from models.cvae import *
+from tf_image_models.cvae.cvae import *
   
 
 
@@ -15,7 +15,7 @@ latent_dim = 128 # set the dimensionality of the latent space to a plane for vis
 num_examples_to_generate = 1
 image_shape = 200
 image_channels = 3
-load_model = True # Load model according previous saved checkpoints
+load_model = False # Load model according previous saved checkpoints
 ###########################################
 
 #### Download dataset #####
@@ -94,8 +94,8 @@ for epoch in range(1, epochs + 1):
 
 # Save the weights using the `checkpoint_path` format
 if not load_model:
-  model.encoder.save_weights("training_1/cp-encoder-{epoch:04d}.weights.h5".format(epoch=epochs))
-  model.decoder.save_weights("training_1/cp-decoder-{epoch:04d}.weights.h5".format(epoch=epochs))
+  model.encoder.save_weights("training/cp-encoder-{epoch:04d}.weights.h5".format(epoch=epochs))
+  model.decoder.save_weights("training/cp-decoder-{epoch:04d}.weights.h5".format(epoch=epochs))
 
 # Make some predictions
 save_image(model.inference_image(test_sample[0]),"test_sample_predicted_trained")
