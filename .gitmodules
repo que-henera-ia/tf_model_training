@@ -1,0 +1,6 @@
+[submodule "tf_utils"]
+	path = tf_utils
+	url = https://github.com/que-henera-ia/tf_utils.git
+[submodule "tf_image_models"]
+	path = tf_image_models
+	url = https://github.com/que-henera-ia/tf_image_models.git
