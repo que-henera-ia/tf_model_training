@@ -73,7 +73,7 @@ for test_batch in test_dataset.take(1):
 save_image(test_sample[0],"test_sample_original")
 
 generated_images = model.inference_batch_images(test_sample)
-save_image_matrix(generated_images, 'data_out/image_at_epoch_{:04d}.png'.format(0))
+save_image_matrix(generated_images, 'data_out/image_at_epoch_{:04d}'.format(0))
 
 for epoch in range(1, epochs + 1):
   start_time = time.time()
@@ -89,7 +89,7 @@ for epoch in range(1, epochs + 1):
   print('Epoch: {}, Test set ELBO: {}, time elapse for current epoch: {}'
         .format(epoch, elbo, end_time - start_time))
   generated_images = model.inference_batch_images(test_sample)
-  save_image_matrix(generated_images, 'data_out/image_at_epoch_{:04d}.png'.format(epoch))
+  save_image_matrix(generated_images, 'data_out/image_at_epoch_{:04d}'.format(epoch))
   
 
 # Save the weights using the `checkpoint_path` format

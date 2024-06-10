@@ -9,7 +9,7 @@ import os
 import PIL
 import time
 
-from models.dcgan import DCGAN
+from tf_image_models.dcgan.dcgan import DCGAN
 from tf_utils.manage_data import *
 from tf_utils.process_images import *
 
@@ -37,8 +37,8 @@ num_examples_to_generate = 4
 img_shape = 200
 img_channels = 3
 
-load_model = True
-start_epoch = 390
+load_model = False
+start_epoch = 0
 
 
 # # keeping the random vector constant for generation (prediction) so
@@ -49,7 +49,15 @@ start_epoch = 390
 # train_images = train_images.reshape(train_images.shape[0], 28, 28, 1).astype('float32')
 # train_images = (train_images - 127.5) / 127.5  # Normalize the images to [-1, 1]
 
-train_images = extract_video_frames("data_in/video_cortito.mp4", img_shape=img_shape, img_channels=img_channels)
+#### Download dataset #####
+# (train_images, _), (test_images, _) = tf.keras.datasets.mnist.load_data()
+####### Load a video #######
+# train_images = extract_video_frames("data_in/video_cortito.mp4", img_shape=image_shape, img_channels=image_channels)
+### Load a set of images ###
+train_images = load_image_dataset("data_in/selulitis/", image_shape, image_channels = image_channels)
+# train_images = load_image_dataset("data_in/landscapes/", image_shape, image_channels = image_channels)
+#############################
+
 # Preprocess data
 train_images = shuffle_dataset(train_images)
 train_images, test_images = split_dataset(train_images)
@@ -68,8 +76,8 @@ train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(train_s
 print("MAXIMUM TRAIN VALUE: " + str(np.max(train_images)))
 print("MINIMMUM TRAIN VALUE: " + str(np.min(train_images)))
 
-generator_checkpoint_path = "training_1/cp-generator-{epoch:04d}.weights.h5"
-discriminator_checkpoint_path = "training_1/cp-discriminator-{epoch:04d}.weights.h5"
+generator_checkpoint_path = "training/cp-generator-{epoch:04d}.weights.h5"
+discriminator_checkpoint_path = "training/cp-discriminator-{epoch:04d}.weights.h5"
 
 model = DCGAN(latent_dim, img_shape, img_channels)
 if load_model:
