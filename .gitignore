@@ -1,0 +1,12 @@
+#Images
+*.png
+*.jpeg
+*.jpg
+*.mp4
+*.gif
+
+#Weights
+*.h5
+
+# Python
+*.pyc
