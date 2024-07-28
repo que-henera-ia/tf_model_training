@@ -1,10 +1,11 @@
 import time
 import numpy as np
+import gc
 
 from tf_image_models.dcgan.dcgan import DCGAN
 from tf_utils.manage_data import *
 from tf_utils.process_images import *
-from tf_utils.python_utils import *
+from tf_utils.train_model import *
 
 #############################
 #   General Parameters      #
@@ -15,18 +16,18 @@ epochs = 1000
 # set the dimensionality of the latent space to a plane for visualization later
 latent_dim = 320
 img_shape = 200
-img_channels = 3
+img_channels = 3 # 1 or 3
 
 load_model = False
 start_epoch = 0
 
-test_images_proportion = 0.3 # In case of training GAN, set to 0
+test_images_proportion = 0.0 # In case of training GAN, set to 0. Usually is set to 0.2
 num_examples_to_generate = 4 # Num Images to generate during training to show process
 seed = None # Only in GAN cases, if None, seed is set randomly with length num_examples_to_generate. Setting a seed makes easier to visualize the progress of GAN training
 
 # Create model
 model = DCGAN(latent_dim=latent_dim, image_shape=img_shape, image_channels=img_channels, model_name=model_name, seed=seed, seed_length=num_examples_to_generate)
-model = CVAE(latent_dim, image_shape, image_channels, load_model = load_model)
+# model = CVAE(latent_dim=latent_dim, image_shape=img_shape, image_channels=img_channels, model_name=model_name, seed=seed, seed_length=num_examples_to_generate)
 
 #############################
 #        Get Data           #
@@ -72,35 +73,40 @@ gc.collect()
 if load_model:
   model.load_weights("{epoch:04d}".format(epoch=start_epoch))
 
-#############################
-#        Train Model        #
-#############################
-for epoch in range(start_epoch, epochs+start_epoch):
-    start = time.time()
 
-    mean_loss = [0.0]*len(model.loss_names)
-    for image_batch in train_dataset:
-        loss = model.train_step(image_batch, batch_size)
-        for i in range(len(model.loss_names)):
-            mean_loss[i]+=loss[i]
-    mean_loss = np.array(mean_loss)/len(train_dataset)
+if test_images_proportion==0:
+        test_dataset = None
+train_model(model, train_dataset, epochs, test_dataset=test_dataset, num_test_generation=num_examples_to_generate ,validation_dataset=None, generation_seed=model.seed, start_epoch=start_epoch, results_path="data_out/")
 
-    # Produce images for the GIF as you go
-    save_image_matrix(model.generate_images(model.seed), img_path ='data_out/{}-image_at_epoch_{:04d}'.format(model_name, epoch))
-    # Save the model every 15 epochs
-    if (epoch) % 15 == 0:
-        model.save_weights("{epoch:04d}".format(epoch=epoch))
+# #############################
+# #        Train Model        #
+# #############################
+# for epoch in range(start_epoch, epochs+start_epoch):
+#     start = time.time()
 
-    print('-- EPOCH {}'.format(epoch))
-    print('Execution Time {} sec'.format(time.time()-start))
-    print('Mean Loss:')
-    for l, n in zip(mean_loss, model.loss_names):
-        print('{} : {}'.format(n,l))
+#     mean_loss = [0.0]*len(model.loss_names)
+#     for image_batch in train_dataset:
+#         loss = model.train_step(image_batch, batch_size)
+#         for i in range(len(model.loss_names)):
+#             mean_loss[i]+=loss[i]
+#     mean_loss = np.array(mean_loss)/len(train_dataset)
 
-# Save model after final epoch
-model.save_weights("{epoch:04d}".format(epoch=epochs))
-# Generate after the final epoch
-save_image_matrix(model.generate_images(model.seed), img_path ='data_out/{}-image_at_epoch_{:04d}'.format(model_name, epochs))
-# Generate GIF and video to show training progress
-save_gif('data_out/'+model_name, re_images_name='data_out/{}-image_at_epoch_*.png'.format(model_name))
-save_mp4('data_out/'+model_name, re_images_name='data_out/{}-image_at_epoch_*.png'.format(model_name))
+#     # Produce images for the GIF as you go
+#     save_image_matrix(model.generate_images(model.seed), img_path ='data_out/{}-image_at_epoch_{:04d}'.format(model_name, epoch))
+#     # Save the model every 15 epochs
+#     if (epoch) % 15 == 0:
+#         model.save_weights("{epoch:04d}".format(epoch=epoch))
+
+#     print('-- EPOCH {}'.format(epoch))
+#     print('Execution Time {} sec'.format(time.time()-start))
+#     print('Mean Loss:')
+#     for l, n in zip(mean_loss, model.loss_names):
+#         print('{} : {}'.format(n,l))
+
+# # Save model after final epoch
+# model.save_weights("{epoch:04d}".format(epoch=epochs))
+# # Generate after the final epoch
+# save_image_matrix(model.generate_images(model.seed), img_path ='data_out/{}-image_at_epoch_{:04d}'.format(model_name, epochs))
+# # Generate GIF and video to show training progress
+# save_gif('data_out/'+model_name, re_images_name='data_out/{}-image_at_epoch_*.png'.format(model_name))
+# save_mp4('data_out/'+model_name, re_images_name='data_out/{}-image_at_epoch_*.png'.format(model_name))
