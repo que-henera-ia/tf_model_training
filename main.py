@@ -24,7 +24,9 @@ test_images_proportion = 0.3 # In case of training GAN, set to 0
 num_examples_to_generate = 4 # Num Images to generate during training to show process
 seed = None # Only in GAN cases, if None, seed is set randomly with length num_examples_to_generate. Setting a seed makes easier to visualize the progress of GAN training
 
+# Create model
 model = DCGAN(latent_dim=latent_dim, image_shape=img_shape, image_channels=img_channels, model_name=model_name, seed=seed, seed_length=num_examples_to_generate)
+model = CVAE(latent_dim, image_shape, image_channels, load_model = load_model)
 
 #############################
 #        Get Data           #
@@ -60,8 +62,12 @@ print("| " + str(test_size) + " | " + str(np.shape(test_images)[1:-2]) + " | " +
         str(np.shape(test_images)[3]) + " | " + str(np.max(test_images)) + " | " + \
         str(np.min(test_images)) + " |")
 
-# Batch and shuffle the data
+# Batch and shuffle the data, create TensorFlow Dataset
 train_dataset = tf.data.Dataset.from_tensor_slices(train_images).shuffle(train_size).batch(batch_size)
+test_dataset  = tf.data.Dataset.from_tensor_slices(test_images).shuffle(test_size).batch(batch_size)
+del train_images
+del test_images
+gc.collect()
 
 if load_model:
   model.load_weights("{epoch:04d}".format(epoch=start_epoch))
